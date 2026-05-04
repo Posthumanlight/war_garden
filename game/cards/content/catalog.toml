@@ -1,0 +1,13 @@
+version = 1
+
+[[cards]]
+id = "creature.knight"
+kind = "creature"
+name = "Knight"
+text = ""
+tier = 1
+attack = 2
+health = 3
+tags = []
+creature_types = ["Human", "Warrior"]
+effect_keys = []
