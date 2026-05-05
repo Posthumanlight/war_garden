@@ -11,7 +11,7 @@ from game.engine.ids import CardId
 
 
 CATALOG_VERSION = 1
-DEFAULT_CARD_CATALOG_PATH = Path(__file__).parent / "content" / "catalog.toml"
+DEFAULT_CARD_CATALOG_PATH = Path(__file__).parent / "content" / "card_catalog.toml"
 
 
 class CardCatalogError(ValueError):
@@ -93,6 +93,10 @@ def _parse_card(
     if kind == "creature":
         attack = _required_int(raw_card, "attack", index=index)
         health = _required_int(raw_card, "health", index=index)
+        if attack < 0:
+            raise CardCatalogError(f"Card entry #{index} field 'attack' must be greater than or equal to 0.")
+        if health <= 0:
+            raise CardCatalogError(f"Card entry #{index} field 'health' must be greater than 0.")
         creature_types = _string_tuple(raw_card, "creature_types", default=())
         return CreatureCard(
             card_id=card_id,
@@ -139,7 +143,7 @@ def _optional_str(raw_card: dict[str, Any], field_name: str, *, default: str) ->
 
 def _required_int(raw_card: dict[str, Any], field_name: str, *, index: int) -> int:
     value = raw_card.get(field_name)
-    if not isinstance(value, int):
+    if not isinstance(value, int) or isinstance(value, bool):
         raise CardCatalogError(f"Card entry #{index} field '{field_name}' must be an integer.")
     return value
 
@@ -169,4 +173,3 @@ def _validate_effect_keys(effect_keys: tuple[str, ...], effect_registry: EffectR
     unknown_keys = [effect_key for effect_key in effect_keys if not effect_registry.has(effect_key)]
     if unknown_keys:
         raise CardCatalogError(f"Unknown effect keys: {', '.join(unknown_keys)}.")
-

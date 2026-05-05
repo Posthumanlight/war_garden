@@ -10,4 +10,7 @@ attack = 2
 health = 3
 tags = []
 creature_types = ["Human", "Warrior"]
-effect_keys = []
+effect_keys = [
+    "knight.on_attack.attack_plus_1",
+    "knight.bounty.health_plus_1",
+]

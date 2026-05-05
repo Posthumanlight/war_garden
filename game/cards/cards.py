@@ -6,7 +6,7 @@ from typing import Literal
 from game.engine.ids import CardId, CardInstanceId, PlayerId
 
 
-Zone = Literal["deck", "hand", "board", "graveyard"]
+Zone = Literal["deck", "hand", "board", "graveyard", "shop"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,7 +81,7 @@ class CardInstance:
         if amount < 0:
             raise ValueError("Damage amount cannot be negative.")
         self.damage += amount
-        self.current_health -= amount
+        self.current_health = max(0, self.current_health - amount)
 
     def move_to(self, zone: Zone) -> None:
         self.zone = zone

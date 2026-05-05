@@ -50,6 +50,14 @@ class Board:
                 return card
         raise KeyError(f"Card instance {instance_id!s} is not on this board.")
 
+    def remove_destroyed(self) -> tuple[CardInstance, ...]:
+        destroyed = tuple(card for card in self.cards if not card.is_alive)
+        if not destroyed:
+            return ()
+        destroyed_ids = {card.instance_id for card in destroyed}
+        self.cards = [card for card in self.cards if card.instance_id not in destroyed_ids]
+        return destroyed
+
 
 @dataclass(slots=True)
 class Graveyard:
@@ -63,4 +71,3 @@ class Graveyard:
 
     def __len__(self) -> int:
         return len(self.cards)
-

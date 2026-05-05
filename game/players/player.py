@@ -16,11 +16,24 @@ class Player:
 
     player_id: PlayerId
     name: str
+    max_health: int = 50
+    health: int = 50
+    is_defeated: bool = False
     board: Board = field(default_factory=Board)
     hand: Hand = field(default_factory=Hand)
     deck: Deck = field(default_factory=Deck)
     graveyard: Graveyard = field(default_factory=Graveyard)
     _attack_cursor: int = 0
+
+    def __post_init__(self) -> None:
+        if self.max_health <= 0:
+            raise ValueError("Player max health must be positive.")
+        if self.health < 0:
+            raise ValueError("Player health cannot be negative.")
+        if self.health > self.max_health:
+            self.health = self.max_health
+        if self.health == 0:
+            self.is_defeated = True
 
     def draw_card(self) -> CardInstance | None:
         card = self.deck.draw()
@@ -48,6 +61,19 @@ class Player:
         self.graveyard.add(card)
         return card
 
+    def move_destroyed_board_cards_to_graveyard(self) -> tuple[CardInstance, ...]:
+        destroyed = self.board.remove_destroyed()
+        for card in destroyed:
+            self.graveyard.add(card)
+        return destroyed
+
+    def take_player_damage(self, amount: int) -> None:
+        if amount < 0:
+            raise ValueError("Player damage cannot be negative.")
+        self.health = max(0, self.health - amount)
+        if self.health == 0:
+            self.is_defeated = True
+
     def next_living_attacker(self) -> CardInstance | None:
         living = self.board.living_cards()
         if not living:
@@ -63,4 +89,3 @@ class Player:
 
     def reset_combat_cursor(self) -> None:
         self._attack_cursor = 0
-
